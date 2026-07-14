@@ -1,242 +1,46 @@
-/**
- * ==========================================================
- * STK_RAGTAG
- * Compare.gs
- * ==========================================================
- */
+static run() {
 
-class Compare {
+  try {
 
-  static run() {
+    const sessionId = Config.get("CURRENT_SESSION");
 
-    try {
+    Validation.required(
+      sessionId,
+      "Session not found."
+    );
 
-      Logger.info("Compare Stock");
+    const version = this.getLatestVersion(sessionId);
 
-      const sessionId = Config.get("CURRENT_SESSION");
-
-      Validation.required(sessionId, "Session not found.");
-
-      const version = this.getLatestVersion(sessionId);
-
-      const result = this.compare(sessionId, version);
-
-      this.save(result);
-
-      SpreadsheetApp.getUi().alert(
-        "Compare Complete : " + result.length + " SKU"
+    const result =
+      CompareService.execute(
+        sessionId,
+        version
       );
 
-    } catch (err) {
+    this.save(result);
 
-      Logger.error(err);
-
-      SpreadsheetApp.getUi().alert(err.message);
-
-    }
-
-  }
-
-}
-static getLatestVersion(sessionId){
-
-  const rows = DatabaseService.table(SHEET.CHECK);
-
-  let version = 0;
-
-  rows.forEach(r=>{
-
-    if(r[0]==sessionId){
-
-      version=Math.max(version,Number(r[1]));
-
-    }
-
-  });
-
-  return version;
-
-}
-static compare(sessionId,version){
-
-  const stocks =
-      DatabaseService.joinStock(sessionId);
-
-  const checkMap =
-DatabaseService.countMap(
-    sessionId,
-    version
-);
-  const map = {};
-
-  checks.forEach(r=>{
-
-    if(r[0]!=sessionId) return;
-
-    if(r[1]!=version) return;
-
-    map[r[4]] = r;
-
-  });
-
-  const result=[];
-
-  stocks.forEach(stock=>{
-
-    const item =
-checkMap[stock.barcode];
-
-const count =
-item ? item.qty : 0;
-
-    const count = check
-      ? Number(check[5])
-      : 0;
-
-    const diff = count-stock.qty;
-
-    result.push({
-
+    SummaryService.create(
       sessionId,
+      version
+    );
 
-      version,
+    ReportLocationService.create(
+      sessionId,
+      version
+    );
 
-      barcode:stock.barcode,
+    SpreadsheetApp
+      .getUi()
+      .alert("Compare Complete");
 
-      sku:stock.sku,
+  } catch(err){
 
-      product:stock.productName,
+    Logger.error(err);
 
-      location:stock.location,
-
-      onhand:stock.qty,
-
-      count,
-
-      diff,
-
-      price:stock.price,
-
-      amount:diff*stock.price
-
-    });
-
-  });
-
-  return result;
-
-}
-static save(rows){
-
-  const sh =
-      SheetService.getSheet(SHEET.DIFF);
-
-  SheetService.clear(SHEET.DIFF);
-
-  const data=[];
-
-  rows.forEach(r=>{
-
-    data.push([
-
-      r.sessionId,
-
-      r.version,
-
-      Config.get("CURRENT_STORE"),
-
-      r.location,
-
-      r.barcode,
-
-      r.sku,
-
-      r.product,
-
-      "",
-
-      "",
-
-      r.onhand,
-
-      r.count,
-
-      r.diff,
-
-      r.price,
-
-      r.amount,
-
-      this.status(r.diff)
-
-    ]);
-
-  });
-
-  if(data.length){
-
-    sh.getRange(
-
-      2,
-
-      1,
-
-      data.length,
-
-      data[0].length
-
-    ).setValues(data);
+    SpreadsheetApp
+      .getUi()
+      .alert(err.message);
 
   }
 
 }
-static status(diff){
-
-  if(diff==0) return "MATCH";
-
-  if(diff>0) return "OVER";
-
-  return "SHORT";
-
-}
-/**
- * Clear DIFF_RESULT ของ Session/Version
- */
-static clearResult(sessionId, version) {
-
-  const sh = SheetService.getSheet(
-    SHEET.DIFF
-  );
-
-  const values = sh.getDataRange().getValues();
-
-  if (values.length <= 1) return;
-
-  const keep = [values[0]];
-
-  for (let i = 1; i < values.length; i++) {
-
-    const r = values[i];
-
-    if (
-      r[0] == sessionId &&
-      Number(r[1]) == Number(version)
-    ) {
-      continue;
-    }
-
-    keep.push(r);
-
-  }
-
-  sh.clearContents();
-
-  sh.getRange(
-    1,
-    1,
-    keep.length,
-    keep[0].length
-  ).setValues(keep);
-
-}
-
