@@ -73,3 +73,49 @@ class ImportStock {
   }
 
 }
+/**
+ * Import Excel
+ */
+ImportStock.importFile = function(file, sessionId){
+
+  Logger.log(file.getName());
+
+  // Phase ถัดไป
+  // Convert Excel → Google Sheet
+  // Read Data
+  // Save STOCK_ONHAND
+  // Update PRODUCT_MASTER
+
+};
+/**
+ * Create Session
+ */
+ImportStock.createSession = function(sessionId){
+
+  SheetService.append(
+
+    SHEET.SESSION,
+
+    [
+
+      sessionId,
+
+      "",
+
+      "",
+
+      new Date(),
+
+      1,
+
+      "OPEN",
+
+      new Date(),
+
+      Session.getActiveUser().getEmail()
+
+    ]
+
+  );
+
+};
