@@ -146,3 +146,131 @@ static install() {
   );
 
 }
+/**
+ * Apply Default Format
+ */
+static formatSheet(sheet) {
+
+  const lastColumn = sheet.getLastColumn();
+
+  if (lastColumn === 0) return;
+
+  sheet.getRange(1, 1, 1, lastColumn)
+    .setFontWeight("bold")
+    .setBackground("#1F4E78")
+    .setFontColor("#FFFFFF")
+    .setHorizontalAlignment("center");
+
+  sheet.setFrozenRows(1);
+
+  sheet.setRowHeight(1, 28);
+
+  sheet.autoResizeColumns(1, lastColumn);
+
+}
+/**
+ * Protect System Sheets
+ */
+static protectSheets() {
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  const protectList = [
+    SHEET.CONFIG,
+    SHEET.RUNNING
+  ];
+
+  protectList.forEach(name => {
+
+    const sh = ss.getSheetByName(name);
+
+    if (!sh) return;
+
+    const protection = sh.protect();
+
+    protection.setDescription("System Protected");
+
+    protection.setWarningOnly(true);
+
+  });
+
+}
+/**
+ * Hide Internal Sheets
+ */
+static hideSheets() {
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  [
+    SHEET.CONFIG,
+    SHEET.RUNNING,
+    SHEET.AUDIT,
+    SHEET.FILE,
+    SHEET.EMAIL
+  ].forEach(name => {
+
+    const sh = ss.getSheetByName(name);
+
+    if (sh) {
+
+      sh.hideSheet();
+
+    }
+
+  });
+
+}
+/**
+ * Create First Audit
+ */
+static createAudit() {
+
+  const sh = SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName(SHEET.AUDIT);
+
+  sh.appendRow([
+
+    new Date(),
+
+    Session.getActiveUser().getEmail(),
+
+    "INSTALL",
+
+    "",
+
+    "1.0.0",
+
+    "SUCCESS",
+
+    "Database Initialized"
+
+  ]);
+
+}
+/**
+ * Install Database
+ */
+static initialize() {
+
+  this.createAllSheets();
+
+  this.createSystemConfig();
+
+  this.createRunningNo();
+
+  this.protectSheets();
+
+  this.hideSheets();
+
+  this.createAudit();
+
+}
+/**
+ * Database Version
+ */
+static getVersion() {
+
+  return APP.VERSION;
+
+}
