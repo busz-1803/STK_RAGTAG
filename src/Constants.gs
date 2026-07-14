@@ -120,3 +120,4 @@ const ENCODING = {
   UTF8: "UTF-8"
 
 };
+SUMMARY: "SUMMARY",
