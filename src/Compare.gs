@@ -62,9 +62,11 @@ static compare(sessionId,version){
   const stocks =
       DatabaseService.joinStock(sessionId);
 
-  const checks =
-      DatabaseService.table(SHEET.CHECK);
-
+  const checkMap =
+DatabaseService.countMap(
+    sessionId,
+    version
+);
   const map = {};
 
   checks.forEach(r=>{
@@ -81,7 +83,11 @@ static compare(sessionId,version){
 
   stocks.forEach(stock=>{
 
-    const check = map[stock.barcode];
+    const item =
+checkMap[stock.barcode];
+
+const count =
+item ? item.qty : 0;
 
     const count = check
       ? Number(check[5])
