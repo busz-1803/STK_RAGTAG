@@ -1,55 +1,59 @@
 /**
- * ============================================
- * STK_RAGTAG Configuration
+ * ===========================================================
+ * STK_RAGTAG
  * Version : 1.0.0
- * Author  : BUSZ
- * ============================================
+ * File : Config.gs
+ * Description : Read / Write SYSTEM_CONFIG
+ * ===========================================================
  */
 
-const CONFIG = {
+class Config {
 
-  // System
-  SYSTEM_NAME: "STK_RAGTAG",
-  VERSION: "1.0.0",
+  static getSheet() {
+    return SpreadsheetApp.getActiveSpreadsheet()
+      .getSheetByName(SHEET.CONFIG);
+  }
 
-  // Spreadsheet
-  SPREADSHEET: SpreadsheetApp.getActiveSpreadsheet(),
+  static get(key) {
 
-  // Google Drive Folder
-  ROOT_FOLDER: "STK_RAGTAG",
+    const sh = this.getSheet();
 
-  // Master Files
-  MASTER_FOLDER: "MASTER",
+    const values = sh.getDataRange().getValues();
 
-  // Handheld Files
-  HANDHELD_FOLDER: "HANDHELD",
+    for (let i = 1; i < values.length; i++) {
 
-  // Export Folder
-  EXPORT_FOLDER: "EXPORT",
+      if (values[i][0] == key) {
 
-  // Backup Folder
-  BACKUP_FOLDER: "BACKUP",
+        return values[i][1];
 
-  // PDF Folder
-  PDF_FOLDER: "PDF",
+      }
 
-  // Sheet Name
-  SHEET: {
+    }
 
-    CONFIG: "CONFIG",
-
-    MASTER: "MASTER",
-
-    HANDHELD: "HANDHELD",
-
-    DIFF: "DIFF",
-
-    LOCATION: "LOCATION",
-
-    SUMMARY: "SUMMARY",
-
-    LOG: "LOG"
+    return "";
 
   }
 
-};
+  static set(key, value) {
+
+    const sh = this.getSheet();
+
+    const values = sh.getDataRange().getValues();
+
+    for (let i = 1; i < values.length; i++) {
+
+      if (values[i][0] == key) {
+
+        sh.getRange(i + 1, 2).setValue(value);
+
+        return;
+
+      }
+
+    }
+
+    sh.appendRow([key, value]);
+
+  }
+
+}
