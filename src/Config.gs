@@ -1,59 +1,61 @@
-/**
- * ===========================================================
- * STK_RAGTAG
- * Version : 1.0.0
- * File : Config.gs
- * Description : Read / Write SYSTEM_CONFIG
- * ===========================================================
- */
+/*************************************************
+ * STK_RAGTAG CONFIG
+ *************************************************/
 
-class Config {
+const CONFIG = {
 
-  static getSheet() {
-    return SpreadsheetApp.getActiveSpreadsheet()
-      .getSheetByName(SHEET.CONFIG);
-  }
+  // Main Spreadsheet
+  SPREADSHEET_ID: SpreadsheetApp.getActiveSpreadsheet().getId(),
 
-  static get(key) {
+  // Folder
+  FOLDER_MASTER: "MASTER_HANDHELD",
+  FOLDER_IMPORT: "IMPORT",
+  FOLDER_EXPORT: "EXPORT",
+  FOLDER_BACKUP: "BACKUP",
+  FOLDER_REPORT: "REPORT",
 
-    const sh = this.getSheet();
+  // Mail
+  MAIL_TO: "your@email.com",
 
-    const values = sh.getDataRange().getValues();
+  // Company
+  COMPANY: "RAGTAG",
 
-    for (let i = 1; i < values.length; i++) {
+  // Version
+  VERSION: "1.0.0"
 
-      if (values[i][0] == key) {
+};
 
-        return values[i][1];
 
-      }
+/*************************************************
+ * Sheet Name
+ *************************************************/
 
-    }
+const SHEET = {
 
-    return "";
+  STORE: "STORE_MASTER",
+  PRODUCT: "PRODUCT_MASTER",
+  LOCATION: "LOCATION_MASTER",
 
-  }
+  STOCK: "STOCK_ONHAND",
 
-  static set(key, value) {
+  COUNT_HEADER: "COUNT_HEADER",
+  COUNT_DETAIL: "COUNT_DETAIL",
 
-    const sh = this.getSheet();
+  USER: "USER_MASTER",
 
-    const values = sh.getDataRange().getValues();
+  LOG: "LOG"
 
-    for (let i = 1; i < values.length; i++) {
+};
 
-      if (values[i][0] == key) {
 
-        sh.getRange(i + 1, 2).setValue(value);
+/*************************************************
+ * Status
+ *************************************************/
 
-        return;
+const STATUS = {
 
-      }
+  OPEN: "OPEN",
+  COUNTING: "COUNTING",
+  CLOSED: "CLOSED"
 
-    }
-
-    sh.appendRow([key, value]);
-
-  }
-
-}
+};
