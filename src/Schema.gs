@@ -54,3 +54,95 @@ static autoResize(sheet, totalColumns) {
   sheet.autoResizeColumns(1, totalColumns);
 
 }
+/**
+ * Create Default System Config
+ */
+static createSystemConfig() {
+
+  const sh = SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName(SHEET.CONFIG);
+
+  const data = [
+
+    ["KEY","VALUE"],
+
+    ["VERSION", APP.VERSION],
+    ["COMPANY", APP.COMPANY],
+
+    ["ROOT_FOLDER_ID",""],
+
+    ["IMPORT_STOCK_FOLDER_ID",""],
+    ["EXPORT_MASTER_FOLDER_ID",""],
+    ["IMPORT_HANDHELD_FOLDER_ID",""],
+    ["EXPORT_PDF_FOLDER_ID",""],
+    ["EMAIL_FOLDER_ID",""],
+    ["BACKUP_FOLDER_ID",""],
+    ["ARCHIVE_FOLDER_ID",""],
+
+    ["CURRENT_SESSION",""],
+    ["CURRENT_STORE",""],
+
+    ["DEFAULT_EMAIL",""],
+
+    ["PDF_PAPER","A4"],
+    ["TEXT_ENCODING","UTF-8"],
+    ["DATE_FORMAT","yyyyMMdd"],
+
+    ["SYSTEM_STATUS","READY"]
+
+  ];
+
+  sh.clearContents();
+
+  sh.getRange(1,1,data.length,2).setValues(data);
+
+  this.setHeaderStyle(sh,2);
+
+}
+/**
+ * Initialize Running Number
+ */
+static createRunningNo() {
+
+  const sh = SpreadsheetApp.getActiveSpreadsheet()
+      .getSheetByName(SHEET.RUNNING);
+
+  sh.clearContents();
+
+  sh.getRange(1,1,2,2).setValues([
+
+    ["PREFIX","LAST_NO"],
+
+    ["RTG",0]
+
+  ]);
+
+  this.setHeaderStyle(sh,2);
+
+}
+/**
+ * Install Database
+ */
+static initialize() {
+
+  this.createAllSheets();
+
+  this.createSystemConfig();
+
+  this.createRunningNo();
+
+}
+/**
+ * Install System
+ */
+static install() {
+
+  this.initialize();
+
+  SpreadsheetApp.getUi().alert(
+
+    "Database Created Successfully."
+
+  );
+
+}
