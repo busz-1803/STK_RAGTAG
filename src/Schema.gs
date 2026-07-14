@@ -274,3 +274,30 @@ static getVersion() {
   return APP.VERSION;
 
 }
+this.createSheet(SHEET.SUMMARY,[
+
+"SESSION_ID",
+
+"VERSION",
+
+"TOTAL_SKU",
+
+"MATCH",
+
+"OVER",
+
+"SHORT",
+
+"UNKNOWN",
+
+"ONHAND_QTY",
+
+"COUNT_QTY",
+
+"DIFF_QTY",
+
+"DIFF_AMOUNT",
+
+"CREATE_DATE"
+
+]);
