@@ -199,3 +199,44 @@ static status(diff){
   return "SHORT";
 
 }
+/**
+ * Clear DIFF_RESULT ของ Session/Version
+ */
+static clearResult(sessionId, version) {
+
+  const sh = SheetService.getSheet(
+    SHEET.DIFF
+  );
+
+  const values = sh.getDataRange().getValues();
+
+  if (values.length <= 1) return;
+
+  const keep = [values[0]];
+
+  for (let i = 1; i < values.length; i++) {
+
+    const r = values[i];
+
+    if (
+      r[0] == sessionId &&
+      Number(r[1]) == Number(version)
+    ) {
+      continue;
+    }
+
+    keep.push(r);
+
+  }
+
+  sh.clearContents();
+
+  sh.getRange(
+    1,
+    1,
+    keep.length,
+    keep[0].length
+  ).setValues(keep);
+
+}
+
