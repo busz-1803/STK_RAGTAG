@@ -8,108 +8,83 @@ class ImportStock {
     ...
   }
 
-  /**
-   * Import Excel File
-   */
   static importFile(file, sessionId) {
 
-    const rows = ExcelService.readData(file);
+  const rows = ExcelService.readData(file);
 
-    if (rows.length <= 1) {
-      throw new Error("No Data.");
-    }
-
-    Logger.info("Rows : " + rows.length);
-
-    this.updateProduct(rows);
-
-    this.importStock(rows, sessionId);
-
+  if (rows.length <= 1) {
+    throw new Error("Excel ไม่มีข้อมูล");
   }
 
-  /**
-   * Import STOCK_ONHAND
-   */
-  static importStock(rows, sessionId) {
+  const headers = rows[0];
 
-    const data = [];
+  const map = this.getHeaderMap(headers);
 
-    for (let i = 1; i < rows.length; i++) {
+  this.validateHeader(map);
 
-      const r = rows[i];
+  Logger.info("Rows : " + (rows.length - 1));
 
-      data.push([
-        sessionId,
-        r[0], // ST_CODE
-        r[1], // BARCODE
-        r[2], // SKU
-        r[3], // PRODUCT
-        r[4], // COLOR
-        r[5], // SIZE
-        Number(r[6]),
-        Number(r[7])
-      ]);
+  this.updateProduct(rows, map);
 
-    }
+  this.importStock(rows, map, sessionId);
 
-    if (data.length === 0) return;
+}
 
-    const sh = SheetService.getSheet(SHEET.STOCK);
+  for (let i = 1; i < rows.length; i++) {
 
-    sh.getRange(
-      sh.getLastRow() + 1,
-      1,
-      data.length,
-      data[0].length
-    ).setValues(data);
+  const r = rows[i];
 
-  }
+  data.push([
 
-  /**
-   * Update PRODUCT_MASTER
-   */
-  static updateProduct(rows) {
+    sessionId,
 
-    const sh = SheetService.getSheet(SHEET.PRODUCT);
+    r[map.ST_CODE],
 
-    const current = {};
+    Helper.barcode(r[map.BARCODE]),
 
-    SheetService.getData(SHEET.PRODUCT).forEach(r => {
-      current[r[0]] = true;
-    });
+    r[map.SKU_CODE],
 
-    const add = [];
+    r[map.PRODUCT_NAME],
 
-    for (let i = 1; i < rows.length; i++) {
+    r[map.COLOR],
 
-      const r = rows[i];
+    r[map.SIZE],
 
-      if (current[r[1]]) continue;
+    Helper.toNumber(r[map.ONHAND_QTY]),
 
-      add.push([
-        r[1], // BARCODE
-        r[2], // SKU
-        r[3], // PRODUCT
-        "",
-        r[4], // COLOR
-        r[5], // SIZE
-        "ACTIVE"
-      ]);
+    Helper.toNumber(r[map.SALE_PRICE])
 
-    }
+  ]);
 
-    if (add.length > 0) {
+}
 
-      sh.getRange(
-        sh.getLastRow() + 1,
-        1,
-        add.length,
-        add[0].length
-      ).setValues(add);
+  for (let i = 1; i < rows.length; i++) {
 
-    }
+  const r = rows[i];
 
-  }
+  const barcode = Helper.barcode(r[map.BARCODE]);
+
+  if (current[barcode]) continue;
+
+  add.push([
+
+    barcode,
+
+    r[map.SKU_CODE],
+
+    r[map.PRODUCT_NAME],
+
+    "",
+
+    r[map.COLOR],
+
+    r[map.SIZE],
+
+    "ACTIVE"
+
+  ]);
+
+}
 
   /**
    * Create SESSION_MASTER
@@ -130,6 +105,53 @@ class ImportStock {
       ]
     );
 
+  }
+
+}
+/**
+ * Create Header Map
+ */
+static getHeaderMap(headers) {
+
+  const map = {};
+
+  headers.forEach((name, index) => {
+    map[String(name).trim().toUpperCase()] = index;
+  });
+
+  return map;
+
+}
+/**
+ * Validate Required Header
+ */
+static validateHeader(map) {
+
+  const required = [
+    "ST_CODE",
+    "BARCODE",
+    "SKU_CODE",
+    "PRODUCT_NAME",
+    "COLOR",
+    "SIZE",
+    "ONHAND_QTY",
+    "SALE_PRICE"
+  ];
+
+  const missing = [];
+
+  required.forEach(col => {
+
+    if (map[col] === undefined) {
+      missing.push(col);
+    }
+
+  });
+
+  if (missing.length) {
+    throw new Error(
+      "Missing Columns : " + missing.join(", ")
+    );
   }
 
 }
