@@ -2,7 +2,7 @@
  * ==========================================================
  * STK_RAGTAG
  * DatabaseService.gs
- * Version 1.0.0
+ * Version 1.1.0
  * ==========================================================
  */
 
@@ -12,176 +12,178 @@ class DatabaseService {
    * Read Table
    */
   static table(sheetName) {
-
     return SheetService.getData(sheetName);
-
   }
 
   /**
    * PRODUCT_MASTER
    */
   static products() {
-
     return this.table(SHEET.PRODUCT);
-
   }
 
   /**
    * STOCK_ONHAND
    */
   static stocks() {
-
     return this.table(SHEET.STOCK);
-
   }
 
   /**
    * LOCATION_MASTER
    */
   static locations() {
-
     return this.table(SHEET.LOCATION);
-
   }
 
   /**
    * STORE_MASTER
    */
   static stores() {
-
     return this.table(SHEET.STORE);
-
   }
 
   /**
    * SESSION_MASTER
    */
   static sessions() {
-
     return this.table(SHEET.SESSION);
+  }
+
+  /**
+   * CHECK_STOCK
+   */
+  static checks() {
+    return this.table(SHEET.CHECK);
+  }
+
+  /**
+   * Find Product
+   */
+  static findProduct(barcode) {
+
+    return this.products().find(r =>
+      Helper.barcode(r[0]) == Helper.barcode(barcode)
+    ) || null;
 
   }
 
-}
-/**
- * Find Product By Barcode
- */
-static findProduct(barcode){
+  /**
+   * Find Location
+   */
+  static findLocation(barcode) {
 
-  const products=this.products();
+    return this.locations().find(r =>
+      Helper.barcode(r[0]) == Helper.barcode(barcode)
+    ) || null;
 
-  return products.find(r=>r[0]==barcode)||null;
+  }
 
-}
-/**
- * Find Shelf
- */
-static findLocation(barcode){
+  /**
+   * Find Stock
+   */
+  static findStock(sessionId, barcode) {
 
-  const rows=this.locations();
+    return this.stocks().find(r =>
 
-  return rows.find(r=>r[0]==barcode)||null;
+      r[0] == sessionId &&
+      Helper.barcode(r[2]) == Helper.barcode(barcode)
 
-}
-/**
- * Find Stock
- */
-static findStock(sessionId,barcode){
+    ) || null;
 
-  const rows=this.stocks();
+  }
 
-  return rows.find(r=>
+  /**
+   * Join Stock + Product + Location
+   */
+  static joinStock(sessionId) {
 
-    r[0]==sessionId &&
+    const stocks = this.stocks();
+    const result = [];
 
-    r[2]==barcode
+    stocks.forEach(stock => {
 
-  )||null;
+      if (stock[0] != sessionId) return;
 
-}
-/**
- * Join Product + Stock + Location
- */
-static joinStock(sessionId){
+      const barcode = Helper.barcode(stock[2]);
 
-  const stocks=this.stocks();
+      const product = this.findProduct(barcode);
 
-  const result=[];
+      const location = this.findLocation(barcode);
 
-  stocks.forEach(stock=>{
+      result.push({
 
-    if(stock[0]!=sessionId) return;
+        sessionId: sessionId,
 
-    const barcode=stock[2];
+        barcode: barcode,
 
-    const product=this.findProduct(barcode);
+        sku: product ? product[1] : "",
 
-    const location=this.findLocation(barcode);
+        productName: product ? product[2] : "",
 
-    result.push({
+        color: product ? product[4] : "",
 
-      sessionId,
+        size: product ? product[5] : "",
 
-      barcode,
+        location: location ? location[1] : "",
 
-      sku:product?product[1]:"",
+        qty: Helper.toNumber(stock[7]),
 
-      productName:product?product[2]:"",
+        price: Helper.toNumber(stock[8])
 
-      color:product?product[4]:"",
-
-      size:product?product[5]:"",
-
-      location:location?location[1]:"",
-
-      qty:stock[7],
-
-      price:stock[8]
+      });
 
     });
 
-  });
+    return result;
 
-  return result;
+  }
 
-}
-/**
- * Group Count By Barcode
- */
-static countMap(sessionId, version) {
+  /**
+   * Group Count By Barcode
+   */
+  static countMap(sessionId, version) {
 
-  const checks = this.table(SHEET.CHECK);
+    const map = {};
 
-  const map = {};
+    this.checks().forEach(r => {
 
-  checks.forEach(r => {
+      if (r[0] != sessionId) return;
 
-    if (r[0] != sessionId) return;
-    if (Number(r[1]) != Number(version)) return;
+      if (Number(r[1]) != Number(version)) return;
 
-    const barcode = Helper.barcode(r[4]);
+      const barcode = Helper.barcode(r[4]);
 
-    if (!map[barcode]) {
+      if (!map[barcode]) {
 
-      map[barcode] = {
-        qty: 0,
-        locations: {}
-      };
+        map[barcode] = {
 
-    }
+          qty: 0,
 
-    map[barcode].qty += Helper.toNumber(r[5]);
+          locations: {}
 
-    const loc = r[3];
+        };
 
-    if (!map[barcode].locations[loc]) {
-      map[barcode].locations[loc] = 0;
-    }
+      }
 
-    map[barcode].locations[loc] += Helper.toNumber(r[5]);
+      const qty = Helper.toNumber(r[5]);
 
-  });
+      map[barcode].qty += qty;
 
-  return map;
+      const location = r[3];
+
+      if (!map[barcode].locations[location]) {
+
+        map[barcode].locations[location] = 0;
+
+      }
+
+      map[barcode].locations[location] += qty;
+
+    });
+
+    return map;
+
+  }
 
 }
