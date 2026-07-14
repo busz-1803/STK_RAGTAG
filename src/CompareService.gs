@@ -2,7 +2,7 @@
  * ==========================================================
  * STK_RAGTAG
  * CompareService.gs
- * Version 1.0.0
+ * Version 1.1.0
  * ==========================================================
  */
 
@@ -22,11 +22,17 @@ class CompareService {
 
       const check = checkMap[stock.barcode];
 
-      const countQty = check ? check.qty : 0;
+      const countQty = check ? Helper.toNumber(check.qty) : 0;
 
-      const diffQty = countQty - stock.qty;
+      const onhandQty = Helper.toNumber(stock.qty);
 
-      const amount = diffQty * stock.price;
+      const salePrice = Helper.toNumber(stock.price);
+
+      const diffQty = countQty - onhandQty;
+
+      const diffAmount = Number(
+        (diffQty * salePrice).toFixed(2)
+      );
 
       result.push({
 
@@ -48,17 +54,24 @@ class CompareService {
 
         location: stock.location,
 
-        onhandQty: stock.qty,
+        onhandQty: onhandQty,
 
         countQty: countQty,
 
         diffQty: diffQty,
 
-        salePrice: stock.price,
+        salePrice: salePrice,
 
-        diffAmount: amount,
+        diffAmount: diffAmount,
 
-        status: this.getStatus(diffQty)
+        status: this.getStatus(
+          onhandQty,
+          countQty
+        ),
+
+        remark: "",
+
+        compareDate: new Date()
 
       });
 
@@ -71,11 +84,23 @@ class CompareService {
   /**
    * Compare Status
    */
-  static getStatus(diffQty){
+  static getStatus(onhandQty, countQty) {
 
-    if(diffQty === 0) return "MATCH";
+    if (onhandQty === 0 && countQty > 0) {
+      return "UNKNOWN";
+    }
 
-    if(diffQty > 0) return "OVER";
+    if (onhandQty > 0 && countQty === 0) {
+      return "MISSING";
+    }
+
+    if (countQty === onhandQty) {
+      return "MATCH";
+    }
+
+    if (countQty > onhandQty) {
+      return "OVER";
+    }
 
     return "SHORT";
 
