@@ -74,48 +74,134 @@ class ImportStock {
 
 }
 /**
- * Import Excel
+ * Import Excel File
  */
-ImportStock.importFile = function(file, sessionId){
+static importFile(file, sessionId){
 
-  Logger.log(file.getName());
+  const rows = ExcelService.readData(file);
 
-  // Phase ถัดไป
-  // Convert Excel → Google Sheet
-  // Read Data
-  // Save STOCK_ONHAND
-  // Update PRODUCT_MASTER
+  if(rows.length<=1){
+
+    throw new Error("No Data.");
+
+  }
+
+  Logger.info("Rows : "+rows.length);
+
+  this.importStock(rows,sessionId);
+
+}
 
 };
 /**
- * Create Session
+ * Import STOCK_ONHAND
  */
-ImportStock.createSession = function(sessionId){
+static importStock(rows,sessionId){
 
-  SheetService.append(
+  const data=[];
 
-    SHEET.SESSION,
+  for(let i=1;i<rows.length;i++){
 
-    [
+    const r=rows[i];
+
+    data.push([
 
       sessionId,
 
-      "",
+      r[0],      // ST_CODE
+
+      r[1],      // BARCODE
+
+      r[2],      // SKU
+
+      r[3],      // PRODUCT
+
+      r[4],      // COLOR
+
+      r[5],      // SIZE
+
+      Number(r[6]),
+
+      Number(r[7])
+
+    ]);
+
+  }
+
+  const sh=SheetService.getSheet(SHEET.STOCK);
+
+  sh.getRange(
+
+    sh.getLastRow()+1,
+
+    1,
+
+    data.length,
+
+    data[0].length
+
+  ).setValues(data);
+
+}
+/**
+ * Update PRODUCT MASTER
+ */
+static updateProduct(rows){
+
+  const sh=SheetService.getSheet(SHEET.PRODUCT);
+
+  const current={};
+
+  const old=SheetService.getData(SHEET.PRODUCT);
+
+  old.forEach(r=>{
+
+    current[r[0]]=true;
+
+  });
+
+  const add=[];
+
+  for(let i=1;i<rows.length;i++){
+
+    const r=rows[i];
+
+    if(current[r[1]]) continue;
+
+    add.push([
+
+      r[1],
+
+      r[2],
+
+      r[3],
 
       "",
 
-      new Date(),
+      r[4],
+
+      r[5],
+
+      "ACTIVE"
+
+    ]);
+
+  }
+
+  if(add.length){
+
+    sh.getRange(
+
+      sh.getLastRow()+1,
 
       1,
 
-      "OPEN",
+      add.length,
 
-      new Date(),
+      add[0].length
 
-      Session.getActiveUser().getEmail()
+    ).setValues(add);
 
-    ]
+  }
 
-  );
-
-};
+}
