@@ -36,7 +36,11 @@ class Menu{
 
 }
 
-    .addItem("Compare Stock","menuCompare")
+    function menuCompare(){
+
+    Compare.run();
+
+}
 
     .addSeparator()
 
