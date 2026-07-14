@@ -48,7 +48,11 @@ function menuInstall(){
 
 }
 
-function menuImportStock(){}
+function menuImportStock(){
+
+  ImportStock.run();
+
+}
 
 function menuGenerateMaster(){}
 
