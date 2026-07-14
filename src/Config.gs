@@ -1,61 +1,110 @@
-/*************************************************
- * STK_RAGTAG CONFIG
- *************************************************/
+/**
+ * ============================================================
+ * Project : STK_RAGTAG
+ * Version : 1.0.0
+ * File    : Config.gs
+ * Description : Read / Write System Configuration
+ * ============================================================
+ */
 
-const CONFIG = {
+class Config {
 
-  // Main Spreadsheet
-  SPREADSHEET_ID: SpreadsheetApp.getActiveSpreadsheet().getId(),
+  /**
+   * SYSTEM_CONFIG Sheet
+   */
+  static sheet() {
+    return SpreadsheetApp
+      .getActiveSpreadsheet()
+      .getSheetByName(SHEET.CONFIG);
+  }
 
-  // Folder
-  FOLDER_MASTER: "MASTER_HANDHELD",
-  FOLDER_IMPORT: "IMPORT",
-  FOLDER_EXPORT: "EXPORT",
-  FOLDER_BACKUP: "BACKUP",
-  FOLDER_REPORT: "REPORT",
+  /**
+   * อ่านค่า Config
+   * @param {string} key
+   * @returns {string}
+   */
+  static get(key) {
 
-  // Mail
-  MAIL_TO: "your@email.com",
+    const sh = this.sheet();
 
-  // Company
-  COMPANY: "RAGTAG",
+    if (!sh) throw new Error("SYSTEM_CONFIG sheet not found.");
 
-  // Version
-  VERSION: "1.0.0"
+    const data = sh.getDataRange().getValues();
 
-};
+    for (let i = 1; i < data.length; i++) {
 
+      if (String(data[i][0]).trim() === key) {
+        return data[i][1];
+      }
 
-/*************************************************
- * Sheet Name
- *************************************************/
+    }
 
-const SHEET = {
+    return "";
 
-  STORE: "STORE_MASTER",
-  PRODUCT: "PRODUCT_MASTER",
-  LOCATION: "LOCATION_MASTER",
+  }
 
-  STOCK: "STOCK_ONHAND",
+  /**
+   * บันทึกค่า Config
+   * @param {string} key
+   * @param {*} value
+   */
+  static set(key, value) {
 
-  COUNT_HEADER: "COUNT_HEADER",
-  COUNT_DETAIL: "COUNT_DETAIL",
+    const sh = this.sheet();
 
-  USER: "USER_MASTER",
+    if (!sh) throw new Error("SYSTEM_CONFIG sheet not found.");
 
-  LOG: "LOG"
+    const data = sh.getDataRange().getValues();
 
-};
+    for (let i = 1; i < data.length; i++) {
 
+      if (String(data[i][0]).trim() === key) {
 
-/*************************************************
- * Status
- *************************************************/
+        sh.getRange(i + 1, 2).setValue(value);
 
-const STATUS = {
+        return;
 
-  OPEN: "OPEN",
-  COUNTING: "COUNTING",
-  CLOSED: "CLOSED"
+      }
 
-};
+    }
+
+    sh.appendRow([key, value]);
+
+  }
+
+  /**
+   * อ่าน Folder ID
+   */
+  static getFolderId(folderKey) {
+    return this.get(folderKey);
+  }
+
+  /**
+   * อ่าน Version
+   */
+  static getVersion() {
+    return this.get("VERSION");
+  }
+
+  /**
+   * อ่าน Company
+   */
+  static getCompany() {
+    return this.get("COMPANY");
+  }
+
+  /**
+   * อ่าน Current Session
+   */
+  static getSession() {
+    return this.get("CURRENT_SESSION");
+  }
+
+  /**
+   * อ่าน Current Store
+   */
+  static getStore() {
+    return this.get("CURRENT_STORE");
+  }
+
+}
