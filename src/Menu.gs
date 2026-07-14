@@ -24,7 +24,11 @@ class Menu{
 
     .addItem("Import Stock","menuImportStock")
 
-    .addItem("Generate MASTER","menuGenerateMaster")
+    function menuGenerateMaster(){
+
+    GenerateMaster.run();
+
+}
 
     .addItem("Import Handheld","menuImportHandheld")
 
