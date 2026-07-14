@@ -17,7 +17,20 @@ class GenerateMaster {
 
       Validation.required(sessionId,"Session not found.");
 
-      const rows = this.getStock(sessionId);
+      const rows=
+DatabaseService.joinStock(sessionId);rows.forEach(r=>{
+
+    r.barcode
+
+    r.location
+
+    r.qty
+
+    r.sku
+
+    r.productName
+
+});
 
       const text = this.buildText(rows);
 
