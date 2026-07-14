@@ -106,5 +106,27 @@ class Config {
   static getStore() {
     return this.get("CURRENT_STORE");
   }
+static get(key){
+
+  const sh =
+    SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName(SHEET.CONFIG);
+
+  const values =
+    sh.getDataRange().getValues();
+
+  for(let i=1;i<values.length;i++){
+
+    if(values[i][0]===key){
+
+      return values[i][1];
+
+    }
+
+  }
+
+  return "";
+
+}
 
 }
