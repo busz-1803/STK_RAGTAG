@@ -1,68 +1,118 @@
 /**
- * ============================================
- * STK_RAGTAG Constants
- * ============================================
+ * ===========================================================
+ * STK_RAGTAG
+ * Version : 1.0.0
+ * File : Constants.gs
+ * Description : System Constants
+ * ===========================================================
  */
 
-const HEADERS = {
+const APP = {
 
-  MASTER: [
-    "ENDING_DATE",
-    "ST_CODE",
-    "ST_NAME",
-    "BUSI_PROD",
-    "BUSI_NAME",
-    "PROD_CODE",
-    "BARCODE",
-    "STOCK_ONHAND",
-    "SALE_PRICE",
-    "DESCRIPTION"
-  ],
+  NAME: "STK_RAGTAG",
 
-  HANDHELD: [
-    "ST_CODE",
-    "BUSI_PROD",
-    "PROD_CODE",
-    "QTY",
-    "PRICE",
-    "S_PRICE",
-    "BAR_CODE",
-    "CHK_DAT",
-    "CHK_TYPE",
-    "HAND_CODE",
-    "LOCATION",
-    "CORNER",
-    "CATEGORY",
-    "PBILL",
-    "DESCRIPTION"
-  ],
+  VERSION: "1.0.0",
 
-  DIFF: [
-    "PROD_CODE",
-    "BARCODE",
-    "MASTER_QTY",
-    "COUNT_QTY",
-    "DIFF",
-    "PRICE",
-    "DESCRIPTION"
-  ],
+  COMPANY: "WORLDSAHA",
 
-  LOCATION: [
-    "LOCATION",
-    "QTY",
-    "TOTAL_PRICE"
-  ]
+  ENCODING: "UTF-8",
+
+  DATE_FORMAT: "yyyyMMdd",
+
+  DATETIME_FORMAT: "yyyy-MM-dd HH:mm:ss",
+
+  PDF_PAPER: "A4"
 
 };
 
+
+
+const SHEET = {
+
+  CONFIG: "SYSTEM_CONFIG",
+
+  STORE: "STORE_MASTER",
+
+  PRODUCT: "PRODUCT_MASTER",
+
+  STOCK: "STOCK_ONHAND",
+
+  CHECK: "CHECK_STOCK",
+
+  DIFF: "DIFF_RESULT",
+
+  HEADER: "REPORT_HEADER",
+
+  LOCATION: "REPORT_LOCATION",
+
+  SIGNATURE: "SIGNATURE",
+
+  RUNNING: "RUNNING_NO",
+
+  AUDIT: "AUDIT_LOG",
+
+  EMAIL: "EMAIL_LOG"
+
+};
+
+
+
+const DRIVE = {
+
+  ROOT: "STK_RAGTAG",
+
+  IMPORT_STOCK: "01_IMPORT_STOCK",
+
+  EXPORT_MASTER: "02_EXPORT_MASTER",
+
+  IMPORT_HANDHELD: "03_IMPORT_HANDHELD",
+
+  EXPORT_PDF: "04_EXPORT_PDF",
+
+  EMAIL: "05_EMAIL",
+
+  BACKUP: "06_BACKUP",
+
+  ARCHIVE: "07_ARCHIVE"
+
+};
+
+
+
+const FILE = {
+
+  MASTER_PREFIX: "MASTER_HANDHELD",
+
+  HANDHELD_PREFIX: "BUS",
+
+  PDF_DIFF: "DIFF",
+
+  PDF_LOCATION: "LOCATION"
+
+};
+
+
+
 const STATUS = {
 
-  SUCCESS: "SUCCESS",
+  OPEN: "OPEN",
 
-  ERROR: "ERROR",
+  IMPORTED: "IMPORTED",
 
-  WARNING: "WARNING",
+  COMPARED: "COMPARED",
 
-  INFO: "INFO"
+  APPROVED: "APPROVED",
+
+  EMAILED: "EMAILED",
+
+  CLOSED: "CLOSED"
+
+};
+
+
+
+const ENCODING = {
+
+  UTF8: "UTF-8"
 
 };
