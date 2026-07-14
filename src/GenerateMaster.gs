@@ -64,33 +64,48 @@ static getStock(sessionId){
   return data.filter(r=>r[0]==sessionId);
 
 }
+/**
+ * Build MASTER File
+ */
 static buildText(rows){
 
-  const output=[];
+  const lines=[];
 
-  rows.forEach(r=>{
+  rows.sort((a,b)=>{
 
-    output.push([
+    if(a.location<b.location) return -1;
+    if(a.location>b.location) return 1;
 
-      r[2],   // Barcode
-
-      r[7]    // Qty
-
-    ].join("|"));
+    return a.barcode.localeCompare(b.barcode);
 
   });
 
-  return output.join("\r\n");
+  rows.forEach(item=>{
+
+    lines.push(
+      this.formatLine(item)
+    );
+
+  });
+
+  return lines.join("\r\n");
 
 }
+/**
+ * Save MASTER File
+ */
 static save(text,sessionId){
 
-  const folder = FileService.getFolder(
-    "EXPORT_MASTER_FOLDER_ID"
-  );
+  const folder =
+    FileService.getFolder(
+      "EXPORT_MASTER_FOLDER_ID"
+    );
+
+  const store =
+    Config.get("CURRENT_STORE");
 
   const fileName =
-    sessionId+".txt";
+    `${store}_${Helper.formatDate()}.txt`;
 
   return folder.createFile(
     fileName,
@@ -98,7 +113,19 @@ static save(text,sessionId){
     MimeType.PLAIN_TEXT
   );
 
-}
+}FileService.saveLog(
+
+    sessionId,
+
+    1,
+
+    "MASTER",
+
+    file.getName(),
+
+    file.getId()
+
+);
 /**
  * Format Master Line
  */
@@ -114,3 +141,10 @@ static formatLine(item){
   ].join("|");
 
 }
+FileService.moveFile(
+
+    file.getId(),
+
+    Config.get("ARCHIVE_FOLDER_ID")
+
+);
