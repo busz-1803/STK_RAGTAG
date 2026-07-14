@@ -145,3 +145,43 @@ static joinStock(sessionId){
   return result;
 
 }
+/**
+ * Group Count By Barcode
+ */
+static countMap(sessionId, version) {
+
+  const checks = this.table(SHEET.CHECK);
+
+  const map = {};
+
+  checks.forEach(r => {
+
+    if (r[0] != sessionId) return;
+    if (Number(r[1]) != Number(version)) return;
+
+    const barcode = Helper.barcode(r[4]);
+
+    if (!map[barcode]) {
+
+      map[barcode] = {
+        qty: 0,
+        locations: {}
+      };
+
+    }
+
+    map[barcode].qty += Helper.toNumber(r[5]);
+
+    const loc = r[3];
+
+    if (!map[barcode].locations[loc]) {
+      map[barcode].locations[loc] = 0;
+    }
+
+    map[barcode].locations[loc] += Helper.toNumber(r[5]);
+
+  });
+
+  return map;
+
+}
