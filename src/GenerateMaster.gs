@@ -99,3 +99,18 @@ static save(text,sessionId){
   );
 
 }
+/**
+ * Format Master Line
+ */
+static formatLine(item){
+
+  return [
+
+    item.barcode,
+    item.sku,
+    item.location,
+    item.qty
+
+  ].join("|");
+
+}
