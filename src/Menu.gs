@@ -30,7 +30,11 @@ class Menu{
 
 }
 
-    .addItem("Import Handheld","menuImportHandheld")
+    function menuImportHandheld(){
+
+  ImportHandheld.run();
+
+}
 
     .addItem("Compare Stock","menuCompare")
 
