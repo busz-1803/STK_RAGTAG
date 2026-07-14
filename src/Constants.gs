@@ -35,6 +35,8 @@ const SHEET = {
 
   PRODUCT: "PRODUCT_MASTER",
 
+  SESSION: "SESSION_MASTER",
+
   STOCK: "STOCK_ONHAND",
 
   CHECK: "CHECK_STOCK",
@@ -51,7 +53,9 @@ const SHEET = {
 
   AUDIT: "AUDIT_LOG",
 
-  EMAIL: "EMAIL_LOG"
+  EMAIL: "EMAIL_LOG",
+
+  FILE: "FILE_LOG"
 
 };
 
