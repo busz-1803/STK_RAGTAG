@@ -1,69 +1,61 @@
 /**
- * ============================================
- * STK_RAGTAG Menu
- * ============================================
+ * ==========================================================
+ * Menu.gs
+ * ==========================================================
  */
 
-/**
- * สร้างเมนูเมื่อเปิด Spreadsheet
- */
-function onOpen() {
+function onOpen(){
 
-  SpreadsheetApp.getUi()
-    .createMenu("📦 RAGTAG STOCK")
+  Menu.create();
 
-    .addItem("Install System", "installSystem")
+}
 
-    .addSeparator()
+class Menu{
 
-    .addItem("Import MASTER", "importMaster")
-    .addItem("Import HANDHELD", "importHandheld")
+  static create(){
 
-    .addSeparator()
+    SpreadsheetApp.getUi()
 
-    .addItem("Generate DIFF", "generateDiff")
-    .addItem("Generate LOCATION", "generateLocation")
+    .createMenu("📦 STK RAGTAG")
+
+    .addItem("Install System","menuInstall")
 
     .addSeparator()
 
-    .addItem("Export PDF", "exportPDF")
-    .addItem("Backup Files", "backupFiles")
+    .addItem("Import Stock","menuImportStock")
+
+    .addItem("Generate MASTER","menuGenerateMaster")
+
+    .addItem("Import Handheld","menuImportHandheld")
+
+    .addItem("Compare Stock","menuCompare")
 
     .addSeparator()
 
-    .addItem("Clear Data", "clearData")
+    .addItem("Generate PDF","menuPdf")
+
+    .addItem("Send Email","menuEmail")
 
     .addToUi();
 
-}
-function installSystem() {
-  SpreadsheetApp.getUi().alert("Install System");
+  }
+
 }
 
-function importMaster() {
-  SpreadsheetApp.getUi().alert("Import MASTER");
+function menuInstall(){
+
+  Install.run();
+
 }
 
-function importHandheld() {
-  SpreadsheetApp.getUi().alert("Import HANDHELD");
-}
+function menuImportStock(){}
 
-function generateDiff() {
-  SpreadsheetApp.getUi().alert("Generate DIFF");
-}
+function menuGenerateMaster(){}
 
-function generateLocation() {
-  SpreadsheetApp.getUi().alert("Generate LOCATION");
-}
+function menuImportHandheld(){}
 
-function exportPDF() {
-  SpreadsheetApp.getUi().alert("Export PDF");
-}
+function menuCompare(){}
 
-function backupFiles() {
-  SpreadsheetApp.getUi().alert("Backup Files");
-}
+function menuPdf(){}
 
-function clearData() {
-  SpreadsheetApp.getUi().alert("Clear Data");
-}
+function menuEmail(){}
