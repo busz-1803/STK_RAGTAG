@@ -58,7 +58,7 @@ class Config {
 
     for (let i = 1; i < data.length; i++) {
 
-      if (String(data[i][0]).trim() === key) {
+      if (String(data[i][0]).trim() === String(key).trim()) {
 
         sh.getRange(i + 1, 2).setValue(value);
 
@@ -106,27 +106,8 @@ class Config {
   static getStore() {
     return this.get("CURRENT_STORE");
   }
-static get(key){
 
-  const sh =
-    SpreadsheetApp.getActiveSpreadsheet()
-    .getSheetByName(SHEET.CONFIG);
-
-  const values =
-    sh.getDataRange().getValues();
-
-  for(let i=1;i<values.length;i++){
-
-    if(values[i][0]===key){
-
-      return values[i][1];
-
-    }
-
-  }
-
-  return "";
 
 }
-
-}
+git add .
+git commit -m "STEP01 Config PASS"
