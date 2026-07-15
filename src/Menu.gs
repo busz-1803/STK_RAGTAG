@@ -1,77 +1,44 @@
 /**
  * ==========================================================
+ * STK_RAGTAG
  * Menu.gs
+ * Version 1.0.0
  * ==========================================================
  */
 
-function onOpen(){
+/**
+ * Create Menu
+ */
+function onOpen() {
 
-  Menu.create();
+  SpreadsheetApp.getUi()
 
-}
+    .createMenu("STK_RAGTAG")
 
-class Menu{
-
-  static create(){
-
-    SpreadsheetApp.getUi()
-
-    .createMenu("📦 STK RAGTAG")
-
-    .addItem("Install System","menuInstall")
+    .addItem("Install Database", "install")
 
     .addSeparator()
 
-    .addItem("Import Stock","menuImportStock")
+    .addItem("Import Stock", "ImportStock.run")
 
-    function menuGenerateMaster(){
+    .addItem("Generate Master", "GenerateMaster.run")
 
-    GenerateMaster.run();
+    .addItem("Import Handheld", "ImportHandheld.run")
 
-}
-
-    function menuImportHandheld(){
-
-  ImportHandheld.run();
-
-}
-
-    function menuCompare(){
-
-    Compare.run();
-
-}
+    .addItem("Compare Stock", "Compare.run")
 
     .addSeparator()
 
-    .addItem("Generate PDF","menuPdf")
+    .addItem("Summary Report", "Summary.run")
 
-    .addItem("Send Email","menuEmail")
+    .addItem("Location Report", "ReportLocation.run")
+
+    .addSeparator()
+
+    .addItem("Export PDF", "PdfService.export")
+
+    .addItem("Send Email", "EmailService.send")
 
     .addToUi();
 
-  }
-
 }
-
-function menuInstall(){
-
-  Install.run();
-
-}
-
-function menuImportStock(){
-
-  ImportStock.run();
-
-}
-
-function menuGenerateMaster(){}
-
-function menuImportHandheld(){}
-
-function menuCompare(){}
-
-function menuPdf(){}
-
-function menuEmail(){}
