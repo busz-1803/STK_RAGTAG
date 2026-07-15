@@ -1,40 +1,25 @@
-/**
- * ============================================================
- * Project : STK_RAGTAG
- * Version : 1.0.0
- * File    : Config.gs
- * Description : Read / Write System Configuration
- * ============================================================
- */
-
 class Config {
 
-  /**
-   * SYSTEM_CONFIG Sheet
-   */
   static sheet() {
     return SpreadsheetApp
       .getActiveSpreadsheet()
       .getSheetByName(SHEET.CONFIG);
   }
 
-  /**
-   * อ่านค่า Config
-   * @param {string} key
-   * @returns {string}
-   */
   static get(key) {
 
     const sh = this.sheet();
 
-    if (!sh) throw new Error("SYSTEM_CONFIG sheet not found.");
+    if (!sh) {
+      throw new Error("SYSTEM_CONFIG sheet not found.");
+    }
 
-    const data = sh.getDataRange().getValues();
+    const values = sh.getDataRange().getValues();
 
-    for (let i = 1; i < data.length; i++) {
+    for (let i = 1; i < values.length; i++) {
 
-      if (String(data[i][0]).trim() === key) {
-        return data[i][1];
+      if (String(values[i][0]).trim() === String(key).trim()) {
+        return values[i][1];
       }
 
     }
@@ -43,25 +28,21 @@ class Config {
 
   }
 
-  /**
-   * บันทึกค่า Config
-   * @param {string} key
-   * @param {*} value
-   */
   static set(key, value) {
 
     const sh = this.sheet();
 
-    if (!sh) throw new Error("SYSTEM_CONFIG sheet not found.");
+    if (!sh) {
+      throw new Error("SYSTEM_CONFIG sheet not found.");
+    }
 
-    const data = sh.getDataRange().getValues();
+    const values = sh.getDataRange().getValues();
 
-    for (let i = 1; i < data.length; i++) {
+    for (let i = 1; i < values.length; i++) {
 
-      if (String(data[i][0]).trim() === String(key).trim()) {
+      if (String(values[i][0]).trim() === String(key).trim()) {
 
         sh.getRange(i + 1, 2).setValue(value);
-
         return;
 
       }
@@ -72,42 +53,24 @@ class Config {
 
   }
 
-  /**
-   * อ่าน Folder ID
-   */
   static getFolderId(folderKey) {
     return this.get(folderKey);
   }
 
-  /**
-   * อ่าน Version
-   */
   static getVersion() {
     return this.get("VERSION");
   }
 
-  /**
-   * อ่าน Company
-   */
   static getCompany() {
     return this.get("COMPANY");
   }
 
-  /**
-   * อ่าน Current Session
-   */
   static getSession() {
     return this.get("CURRENT_SESSION");
   }
 
-  /**
-   * อ่าน Current Store
-   */
   static getStore() {
     return this.get("CURRENT_STORE");
   }
 
-
 }
-git add .
-git commit -m "STEP01 Config PASS"
