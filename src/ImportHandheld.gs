@@ -2,113 +2,171 @@
  * ==========================================================
  * STK_RAGTAG
  * ImportHandheld.gs
+ * Version 1.0.0
  * ==========================================================
  */
 
 class ImportHandheld {
 
-  static run() {
+  /**
+   * Main Process
+   */
+  /**
+ * Main Process
+ */
+static run() {
 
-    try {
+  try {
 
-      Logger.info("Import Handheld");
+    AppLogger.info("Import Handheld Started");
 
-      const file = FileService.getLatestFile(
-        "IMPORT_HANDHELD_FOLDER_ID"
-      );
+    const file = FileService.getLatestFile(
+      "IMPORT_HANDHELD_FOLDER_ID"
+    );
 
-      if (!file) {
-        throw new Error("Handheld file not found.");
-      }
-
-      const text = file.getBlob().getDataAsString("UTF-8");
-
-      const rows = this.parse(text);
-
-      const sessionId = Config.get("CURRENT_SESSION");
-
-      const version = this.getNextVersion(sessionId);
-
-      this.saveCheck(rows, sessionId, version);
-
-      this.updateLocation(rows);
-
-      FileService.saveLog(
-        sessionId,
-        version,
-        "HANDHELD",
-        file.getName(),
-        file.getId()
-      );
-
-      SpreadsheetApp.getUi().alert("Import Complete");
-
-    } catch(err){
-
-      Logger.error(err);
-
-      SpreadsheetApp.getUi().alert(err.message);
-
+    if (!file) {
+      throw new Error("Handheld file not found.");
     }
+
+    const text = file
+      .getBlob()
+      .getDataAsString(ENCODING.UTF8);
+
+    const rows = this.parse(text);
+
+    const sessionId = Config.getSession();
+
+    Validation.required(
+      sessionId,
+      "Current Session not found."
+    );
+
+    const version =
+      this.getNextVersion(sessionId);
+
+    this.saveCheck(
+      rows,
+      sessionId,
+      version
+    );
+
+    this.updateLocation(rows);
+
+    FileService.saveLog(
+      sessionId,
+      version,
+      "HANDHELD",
+      file.getName(),
+      file.getId()
+    );
+
+    SpreadsheetApp.getUi().alert(
+      "Import Handheld Success"
+    );
+
+    AppLogger.info("Import Handheld Completed");
+
+  } catch (e) {
+
+    AppLogger.error(e);
+
+    SpreadsheetApp.getUi().alert(
+      e.message
+    );
 
   }
 
 }
-static parse(text){
+
+   /**
+ * Parse Handheld Text
+ */
+static parse(text) {
 
   const lines = text.split(/\r?\n/);
 
-  const data = [];
+  const rows = [];
 
-  lines.forEach(line=>{
+  lines.forEach(line => {
 
-    if(line.trim()=="") return;
+    line = String(line).trim();
 
-    data.push(line.split("|"));
+    if (line === "") return;
+
+    rows.push(
+      line.split("|")
+    );
 
   });
 
-  return data;
+  AppLogger.info(
+    "Handheld Rows : " + rows.length
+  );
+
+  return rows;
 
 }
-static getNextVersion(sessionId){
 
-  const rows = SheetService.getData(SHEET.CHECK);
+  /**
+   * Get Next Version
+   */
+  /**
+ * Get Next Version
+ */
+static getNextVersion(sessionId) {
+
+  const rows = SheetService.getData(
+    SHEET.CHECK
+  );
 
   let version = 0;
 
-  rows.forEach(r=>{
+  rows.forEach(r => {
 
-    if(r[0]==sessionId){
+    if (String(r[0]) === String(sessionId)) {
 
-      version = Math.max(version, Number(r[1]));
+      version = Math.max(
+        version,
+        Helper.toNumber(r[1])
+      );
 
     }
 
   });
 
+  AppLogger.info(
+    "Next Version : " + (version + 1)
+  );
+
   return version + 1;
 
 }
-static saveCheck(rows, sessionId, version){
 
-  const sh = SheetService.getSheet(SHEET.CHECK);
+  /**
+   * Save CHECK_STOCK
+   */
+  /**
+ * Save CHECK_STOCK
+ */
+static saveCheck(rows, sessionId, version) {
 
   const data = [];
 
-  rows.forEach(r=>{
+  rows.forEach(r => {
 
     data.push([
 
       sessionId,
+
       version,
-      Config.get("CURRENT_STORE"),
 
-      r[2],      // LOCATION
+      Config.getStore(),
 
-      r[0],      // BARCODE
+      r[2],                           // LOCATION
 
-      Helper.toNumber(r[3]),
+      Helper.barcode(r[0]),           // BARCODE
+
+      Helper.toNumber(r[3]),          // QTY
 
       new Date()
 
@@ -116,67 +174,75 @@ static saveCheck(rows, sessionId, version){
 
   });
 
-  if(data.length){
-
-    sh.getRange(
-
-      sh.getLastRow()+1,
-
-      1,
-
-      data.length,
-
-      data[0].length
-
-    ).setValues(data);
-
+  if (data.length === 0) {
+    return;
   }
 
+  SheetService.appendRows(
+    SHEET.CHECK,
+    data
+  );
+
+  AppLogger.info(
+    "Save CHECK_STOCK : " +
+    data.length +
+    " rows"
+  );
+
 }
-static updateLocation(rows){
+  /**
+   * Update LOCATION_MASTER
+   */
+  /**
+ * Update LOCATION_MASTER
+ */
+static updateLocation(rows) {
 
-  const sh = SheetService.getSheet(SHEET.LOCATION);
+  const current = {};
+  const add = [];
 
-  const old = DatabaseService.locations();
+  // อ่าน LOCATION_MASTER เดิม
+  DatabaseService.locations().forEach(r => {
 
-  const map = {};
-
-  old.forEach(r=>{
-
-    map[r[0]] = true;
+    current[
+      Helper.barcode(r[0])
+    ] = true;
 
   });
 
-  const add = [];
+  // เพิ่มเฉพาะ Barcode ที่ยังไม่มี
+  rows.forEach(r => {
 
-  rows.forEach(r=>{
+    const barcode = Helper.barcode(r[0]);
 
-    if(map[r[0]]) return;
+    if (current[barcode]) {
+      return;
+    }
 
     add.push([
 
-      r[0],   // BARCODE
+      barcode,
 
-      r[2]    // LOCATION
+      r[2]     // LOCATION
 
     ]);
 
   });
 
-  if(add.length){
+  if (add.length === 0) {
 
-    sh.getRange(
-
-      sh.getLastRow()+1,
-
-      1,
-
-      add.length,
-
-      add[0].length
-
-    ).setValues(add);
+    return;
 
   }
 
+  SheetService.appendRows(
+    SHEET.LOCATION,
+    add
+  );
+
+  AppLogger.info(
+    "New Locations : " + add.length
+  );
+
+}
 }
