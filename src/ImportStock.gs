@@ -1,4 +1,6 @@
-/**
+class ImportStock {
+
+  /**
  * Main Process
  */
 static run() {
